@@ -6,6 +6,9 @@ import pickle
 def BFS(adj_list, start_id, target_id):
     # define a set to avoid duplicate visits
     seen = set()
+
+    # we're also going to use a parent dictionary to reverse engineer the path once the end node is reached
+    parent_dict = {start_id: None}
     seen.add(start_id)
 
     # define a distance variable to keep track of the distance between start and end
@@ -20,16 +23,28 @@ def BFS(adj_list, start_id, target_id):
 
             curr = id_queue.popleft()
             if curr == target_id:
-                return distance
+                # iterate through the parent list to return the path
+                return_path = []
+                curr = target_id
+
+                while curr is not None:
+                    return_path.append(curr)
+                    curr = parent_dict[curr]
+
+                return_path.reverse()
+                return return_path, distance
 
             for edge in adj_list[curr]:
                 if edge not in seen:
                     id_queue.append(edge)
                     seen.add(edge)
+
+                    # add the parent to the parent dict
+                    parent_dict[edge] = curr
         distance += 1
 
     # if theres no correct path
-    return -1
+    return [], -1
 
 
 
@@ -37,10 +52,12 @@ def BFS(adj_list, start_id, target_id):
 try:
     with open("../adjacency_list.pkl", "rb") as file:
         adj_list = pickle.load(file)
+    print("Pickle file loaded!")
 except:
     print("Pickle file failed to load")
 
 # Testing out the BFS function
-print(BFS(adj_list, 67, 6767))
+print(BFS(adj_list, 1244079, 1453226))
+
 
 
