@@ -1,4 +1,4 @@
-import json # we will use the json module to store the dictionary in a json file
+import pickle # we will use the pickle module to store the dictionary in a pickle file
 
 adj_dict = {}
 
@@ -14,10 +14,6 @@ with open("../wiki-topcats.txt", "r") as edge_list:
         else:
             adj_dict[id] = {edge}
 
-# since json files don't take sets, we need to loop through adj_dict to turn the sets into lists
-for key, value in adj_dict.items():
-    adj_dict[key] = list(value)
-
-# now that we have our dictionary, we can save it into a json file
-with open("../adjacency_list.json", "w") as adj_list:
-    json.dump(adj_dict, adj_list, indent = 4)
+# now that we have our dictionary, we can save it into a pickle file
+with open("../adjacency_list.pkl", "wb") as adj_list:
+    pickle.dump(adj_dict, adj_list)
