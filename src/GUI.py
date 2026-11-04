@@ -105,8 +105,10 @@ class Window(QWidget):
             
 
     # TODO: make this check input against list of all names
-    def check_input(self, page_name):
-       return True
+    def check_input(self, page_name, name_list):
+        if (page_name in name_list):
+            return True
+       return False
     
         
 

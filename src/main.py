@@ -46,6 +46,20 @@ def BFS(adj_list, start_id, target_id):
     # if theres no correct path
     return [], -1
 
+# defining the id mapping function
+def id_to_name(id_map, id):
+    if id in id_map:
+        return id_map[id]
+    else:
+        IndexError("ID is out of range!")
+
+# defining the name to id mapping function
+def name_to_id(id_map, name):
+    for key, value in id_map.items():
+        if value == name:
+            return key
+    raise IndexError("Invalid article name")
+
 
 
 # load the pickle file
@@ -59,5 +73,14 @@ except:
 # Testing out the BFS function
 print(BFS(adj_list, 1244079, 1453226))
 
+
+# FIGURE OUT HOW TO ORGANIZE THIS CODE BETTER
+# Code for loading the id map
+try:
+    with open("../id_mapping.pkl", "rb") as file:
+        id_map = pickle.load(file)
+    print("Pickle file loaded!")
+except:
+    print("Pickle file failed to load")
 
 
