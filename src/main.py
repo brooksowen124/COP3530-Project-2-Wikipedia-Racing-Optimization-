@@ -2,6 +2,13 @@
 from collections import deque
 import pickle
 
+adj_dict = create_adj_dict("../wiki-topcats.txt")
+id_mapping = create_id_mapping("../wiki-topcats-page-names.txt")
+
+save_dict(adj_dict, "../adjacency_list.pkl")
+save_dict(id_mapping, "../id_mapping.pkl")
+
+
 # defining the BFS method
 def BFS(adj_list, start_id, target_id):
     # define a set to avoid duplicate visits
