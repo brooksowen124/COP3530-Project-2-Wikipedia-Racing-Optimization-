@@ -1,4 +1,5 @@
 from collections import deque
+import os
 import pickle
 
 # This class contains all relevant attributes and methods for loading
@@ -11,6 +12,7 @@ class AdjacencyMap:
 
         self.adj_list = {}
         self.id_mapping = {}
+        self.rev_adj_list = {}
 
     # ----------------------------------
     # FILE LOADING/PREPARATION FUNCTIONS:
@@ -68,6 +70,24 @@ class AdjacencyMap:
             print("Pickle file loaded!")
         except:
             print("Pickle file failed to load")
+
+    def build_reverse_graph(self):
+        rev_adj_list = {}
+        for node, neighbors in self.adj_list.items():
+            for neighbor in neighbors:
+                if neighbor in rev_adj_list:
+                    rev_adj_list[neighbor].add(node)
+                else:
+                    rev_adj_list[neighbor] = {node}
+        self.rev_adj_list = rev_adj_list
+
+    def load_reverse_attribute(self, filepath):
+        if os.path.exists(filepath):
+            with open(filepath, "rb") as file:
+                self.rev_adj_list = pickle.load(file)
+        else:
+            self.build_reverse_graph()
+            self.save_dict(self.rev_adj_list, filepath)
 
     # -------------------------------------
     # ID to Article Name Conversion Methods
@@ -133,4 +153,56 @@ class AdjacencyMap:
             distance += 1
 
         # if theres no correct path
+        return [], -1
+
+    def bidirectional_BFS(self, start_id, target_id):
+        if start_id == target_id:
+            return [start_id], 0
+
+        if not self.rev_adj_list:
+            self.build_reverse_graph()
+
+        def expand_level(frontier, graph, parents, dist, other_dist):
+            next_frontier = []
+            best = None
+            for curr in frontier:
+                for neighbor in graph.get(curr, ()):
+                    if neighbor not in parents:
+                        parents[neighbor] = curr
+                        dist[neighbor] = dist[curr] + 1
+                        next_frontier.append(neighbor)
+                        if neighbor in other_dist:
+                            total = dist[neighbor] + other_dist[neighbor]
+                            if best is None or total < best[1]:
+                                best = (neighbor, total)
+            return next_frontier, best
+
+        parents_f = {start_id: None}
+        parents_b = {target_id: None}
+        dist_f = {start_id: 0}
+        dist_b = {target_id: 0}
+        frontier_f = [start_id]
+        frontier_b = [target_id]
+
+        while frontier_f and frontier_b:
+            if len(frontier_f) <= len(frontier_b):
+                frontier_f, best = expand_level(frontier_f, self.adj_list, parents_f, dist_f, dist_b)
+            else:
+                frontier_b, best = expand_level(frontier_b, self.rev_adj_list, parents_b, dist_b, dist_f)
+
+            if best is not None:
+                meet, total = best
+                return_path = []
+                curr = meet
+                while curr is not None:
+                    return_path.append(curr)
+                    curr = parents_f[curr]
+                return_path.reverse()
+
+                curr = parents_b[meet]
+                while curr is not None:
+                    return_path.append(curr)
+                    curr = parents_b[curr]
+                return return_path, total
+
         return [], -1
