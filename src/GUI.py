@@ -1,10 +1,13 @@
-from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit
-import sys
+from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit
+from PySide6.QtCore import QCoreApplication
+from adj_list import AdjacencyMap
 
 class Window(QWidget):
 
     def __init__(self):
         super().__init__()
+
+        # GUI elements
 
         self.setWindowTitle("Wikapedia Race Solver")
         self.resize(700, 500)
@@ -60,18 +63,31 @@ class Window(QWidget):
             border: 3px solid black;
             font-size: 14px;
             padding: 5px;
+            background-color: #ffffff;
         """
         self.error_output_style = """
             color: red;
             border: 3px solid black;
             font-size: 14px;
             padding: 5px;
+            background-color: #ffffff;
         """
 
         self.output_label.setStyleSheet(self.output_style)
 
+        self.button_enabled_style = """
+            font-size: 14px;
+            background-color: #ffffff;
+        """
+        self.button_disabled_style = """
+            font-size: 14px;
+            background-color: #bbbbbb;
+        """
+
         self.solve_button = QPushButton("Solve", self)
         self.solve_button.clicked.connect(self.solve_button_pressed)
+
+        self.solve_button.setStyleSheet(self.button_enabled_style)
 
         total_layout.addWidget(self.solve_button)
         total_layout.addWidget(self.output_header_label)
@@ -81,43 +97,94 @@ class Window(QWidget):
         # sets the final layout
         self.setLayout(total_layout)
 
+
+
+
+        # GUI functionality
+
+        
+
+    def load_pickles(self):
+        self.output_label.setText("Loading Files...")
+        self.enable_solve_button(False)
+
+        QCoreApplication.processEvents()
+
+        self.adjacency_map = AdjacencyMap()
+
+        self.output_label.setText("Files Loaded")
+        self.enable_solve_button(True)
+
+
+
+    def enable_solve_button(self, enabled):
+        self.solve_button.setEnabled(enabled)
+
+        if enabled:
+            self.solve_button.setStyleSheet(self.button_enabled_style)
+        else:
+            self.solve_button.setStyleSheet(self.button_disabled_style)
+
+        QCoreApplication.processEvents()
+
+
+
+
+
     # functionality of the solve button
     def solve_button_pressed(self):
 
+        # clear the text box
+        self.output_label.setText("")
+
+        # disable further presses
+        self.enable_solve_button(False)
+
+        # preemptively sets the text color in the box to error mode
+        self.output_label.setStyleSheet(self.error_output_style)
+
+        # get text field input
+        start_name = self.start_input.text()
+        target_name = self.target_input.text()
+
         # checks if both inputs are valid Wikapedia articles
         valid = True
-        self.output_label.setStyleSheet(self.error_output_style)
-        if not self.check_input("pass"):
+        if not self.adjacency_map.check_input(start_name):
            
-           self.output_label.setText(f"{self.output_label.text()}\nStart page name is invalid...")
+           self.output_label.setText(f"\"{start_name}\" is an invalid Wikapedia page...")
            valid = False
         
-        if not self.check_input("pass"):
+        if not self.adjacency_map.check_input(target_name):
 
-           self.output_label.setText(f"{self.output_label.text()}\nTarget page name is invalid...")
+           self.output_label.setText(f"{self.output_label.text()}\n\"{target_name}\" is an invalid Wikapedia page...")
            valid = False
 
-        if not valid: return
-
-        self.output_label.setStyleSheet(self.output_style)
-
-
-            
-
-    # TODO: make this check input against list of all names
-    def check_input(self, page_name, name_list):
-        if (page_name in name_list):
-            return True
-       return False
-    
         
 
+        if valid: 
+            # resets text color
+            self.output_label.setStyleSheet(self.output_style)
+
+            self.output_label.setText("Searching...")
+
+            # converts text inputs to their ID
+            start_id = self.adjacency_map.name_to_id(start_name)
+            target_id = self.adjacency_map.name_to_id(target_name)
+
+            # TODO: make it be able to switch between algorithms
+
+            # do BFS
+            path, dist = self.adjacency_map.BFS(start_id, target_id)
+
+            path_string = ""
+            for element in path:
+                path_string += self.adjacency_map.id_to_name(element) + " -> "
+
+            path_string = path_string[:-4]
+
+            self.output_label.setText(path_string)
 
 
-if __name__ == "__main__":
-  app = QApplication(sys.argv)
+        self.enable_solve_button(True)
 
-  window = Window()
-  window.show()
 
-  sys.exit(app.exec())

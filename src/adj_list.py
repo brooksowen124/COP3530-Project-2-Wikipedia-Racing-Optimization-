@@ -6,68 +6,41 @@ import pickle
 
 class AdjacencyMap:
     def __init__(self):
-        # Initialize both the adjacency map graph representation and the id mapping dictionary
+        # Load both the adjacency map graph representation and the id mapping dictionary into memory
         # We will later use another class method to define these
 
         self.adj_list = {}
         self.id_mapping = {}
+        self.reverse_id_mapping = {}
 
-    # ----------------------------------
-    # FILE LOADING/PREPARATION FUNCTIONS:
-    # ----------------------------------
+        self.load_adj_attribute()
+        self.load_id_attribute()
+        self.build_reverse_id_attribute()
 
-    # Creates the adjacency list from the text file
-    def load_graph(self, filepath):
-        adj_dict = {}
-
-        # iterate through the edge list to add values to the dictionary
-        with open(filepath, "r") as edge_list:
-            for line in edge_list:
-                id = int(line.split()[0])
-                edge = int(line.split()[1])
-
-                # check if there is already a set at the given id
-                if id in adj_dict:
-                    adj_dict[id].add(edge)
-                else:
-                    adj_dict[id] = {edge}
-        return adj_dict
-
-    # Creates the id mapping from the text file
-    def load_id_map(self, filepath):
-        id_mapping = {}
-
-        with open(filepath, "r") as file:
-            for line in file:
-                # skip lines with only one value
-                if len(line.strip().split(" ", 1)) < 2:
-                    continue
-                id, name = line.strip().split(" ", 1)
-                id_mapping[int(id)] = name
-        return id_mapping
-
-    # Saves a dictionary to a pickle file
-    def save_dict(self, dict, outputpath):
-        with open(outputpath, "wb") as file:
-            pickle.dump(dict, file)
 
     # Loads the adjacency list attribute from a pickle file
-    def load_adj_attribute(self, filepath):
+    def load_adj_attribute(self):
         try:
-            with open(filepath, "rb") as file:
+            with open("../adjacency_list.pkl", "rb") as file:
                 self.adj_list = pickle.load(file)
             print("Pickle file loaded!")
         except:
             print("Pickle file failed to load")
 
     # Loads the id map attribute from a pickle file
-    def load_id_attribute(self, filepath):
+    def load_id_attribute(self):
         try:
-            with open(filepath, "rb") as file:
+            with open("../id_mapping.pkl", "rb") as file:
                 self.id_mapping = pickle.load(file)
             print("Pickle file loaded!")
         except:
             print("Pickle file failed to load")
+
+
+    # Creates a reverse id map for faster name lookup
+    def build_reverse_id_attribute(self):
+        for key, value in self.id_mapping.items():
+            self.reverse_id_mapping[value] = key
 
     # -------------------------------------
     # ID to Article Name Conversion Methods
@@ -82,10 +55,18 @@ class AdjacencyMap:
 
     # Returns the ID for a given article name
     def name_to_id(self, name):
-        for key, value in self.id_mapping.items():
-            if value == name:
-                return key
-        raise IndexError("Invalid article name")
+        if name in self.reverse_id_mapping:
+            return self.reverse_id_mapping[name]
+        else:
+            raise IndexError("Invalid article name")
+
+
+
+    def check_input(self, page_name):
+        if page_name in self.reverse_id_mapping:
+            return self.reverse_id_mapping[page_name]
+        else:  
+            return False
 
 
     # -------------------
