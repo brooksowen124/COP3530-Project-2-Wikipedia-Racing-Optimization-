@@ -9,7 +9,7 @@ class Window(QWidget):
 
         # GUI elements
 
-        self.setWindowTitle("Wikapedia Race Solver")
+        self.setWindowTitle("Wikipedia Race Solver")
         self.resize(700, 500)
 
         # splits screen into inputs on top and output on the bottom
@@ -147,16 +147,16 @@ class Window(QWidget):
         start_name = self.start_input.text()
         target_name = self.target_input.text()
 
-        # checks if both inputs are valid Wikapedia articles
+        # checks if both inputs are valid Wikipedia articles
         valid = True
         if not self.adjacency_map.check_input(start_name):
            
-           self.output_label.setText(f"\"{start_name}\" is an invalid Wikapedia page...")
+           self.output_label.setText(f"\"{start_name}\" is an invalid Wikipedia page...")
            valid = False
         
         if not self.adjacency_map.check_input(target_name):
 
-           self.output_label.setText(f"{self.output_label.text()}\n\"{target_name}\" is an invalid Wikapedia page...")
+           self.output_label.setText(f"{self.output_label.text()}\n\"{target_name}\" is an invalid Wikipedia page...")
            valid = False
 
         
