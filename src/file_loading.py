@@ -38,7 +38,7 @@ def save_dict(dict, outputpath):
         pickle.dump(dict, file)
 
 
-
+# RUNNING THIS FILE TAKES THE ADJACENCY LIST AND IDS TEXT FILES AND CONVERTS THEM TO PICKLE FILES
 adj_dict = create_adj_dict("../wiki-topcats.txt")
 id_mapping = create_id_mapping("../wiki-topcats-page-names.txt")
 
