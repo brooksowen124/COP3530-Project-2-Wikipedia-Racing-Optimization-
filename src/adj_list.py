@@ -17,7 +17,9 @@ class AdjacencyMap:
 
         self.load_adj_attribute()
         self.load_id_attribute()
+        self.build_reverse_graph()
         self.build_reverse_id_attribute()
+        
 
 
     # Loads the adjacency list attribute from a pickle file
@@ -140,9 +142,6 @@ class AdjacencyMap:
     def bidirectional_BFS(self, start_id, target_id):
         if start_id == target_id:
             return [start_id], 0
-
-        if not self.rev_adj_list:
-            self.build_reverse_graph()
 
         def expand_level(frontier, graph, parents, dist, other_dist):
             next_frontier = []
