@@ -61,12 +61,16 @@ class Window(QWidget):
 
 
         self.button_enabled_style = """
-            font-size: 14px;
-            background-color: #ffffff;
+            QPushButton {
+                font-size: 14px;
+                background-color: #ffffff;
+            }
         """
         self.button_disabled_style = """
-            font-size: 14px;
-            background-color: #bbbbbb;
+            QPushButton {
+                font-size: 14px;
+                background-color: #bbbbbb;
+            }
         """
         self.solve_button = QPushButton("Solve", self)
 
